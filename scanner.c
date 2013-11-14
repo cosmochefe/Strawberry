@@ -159,7 +159,7 @@ bool is_newline(char c, char p)
 bool is_keyword(identifier_t id, symbol_t *symbol)
 {
 	unsigned int index = 0;
-	while (index < keywords_count && strcasecmp(keywords[index].id, id) != 0)
+	while (index < keywords_count && strcmp(keywords[index].id, id) != 0)
 		index++;
 	if (index < keywords_count) {
 		if (symbol)

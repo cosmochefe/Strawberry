@@ -117,7 +117,7 @@ entry_t *find_entry(identifier_t id, entry_t *table)
 {
 	entry_t *current = table;
 	while (current) {
-		if (strcasecmp(current->id, id) == 0)
+		if (strcmp(current->id, id) == 0)
 			break;
 		current = current->next;
 	}
