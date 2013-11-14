@@ -2,3 +2,5 @@
 *.xcodeproj
 *.dev
 Makefile*
+stbry*
+*.o

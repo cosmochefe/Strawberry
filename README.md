@@ -1,7 +1,5 @@
-# Compilador para Oberon-0
+# Compilador didático para Portugol
 
-Este projeto visa implementar em linguagem C um compilador para a linguagem de programação Oberon-0, descrita no livro “Compiler Construction” de Niklaus Wirth. O código está estruturado de forma genérica o suficiente para permitir adaptações a outras linguagens, modificando-se a estrutura do analisador sintático conforme as novas regras gramaticais.
+Este projeto visa implementar em linguagem C um compilador para a linguagem educacional Portugol, largamente usada para o ensino de programação e algoritmos. O objetivo é gerar um tradutor para linguagem de montagem do tipo RISC, para que os alunos possam fazer a correlação entre disciplinas de introdução à programação e arquiteturas de computadores.
 
 A abordagem de implementação utilizada é a de “análise descendente recursiva” por sua simplicidade e facilidade de entendimento.
-
-Nota: os arquivos de projeto do Xcode estão presentes apenas por conveniência. Todo o código tem por base o padrão C99 e provavelmente pode ser compilado em outros sistemas operacionais além do Mac OS X.
