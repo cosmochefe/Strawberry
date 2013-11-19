@@ -629,17 +629,30 @@ void read_token()
 		current_token.lexem.id[2] = '\0';
 		read_char();
 		current_token.lexem.symbol = symbol_less_equal;
-	} else if (current_token.lexem.symbol == symbol_greater && current_char == '=') {
+	}
+	else if (current_token.lexem.symbol == symbol_greater && current_char == '=') {
 		current_token.lexem.id[1] = '=';
 		current_token.lexem.id[2] = '\0';
 		read_char();
 		current_token.lexem.symbol = symbol_greater_equal;
-	} else if (current_token.lexem.symbol == symbol_colon && current_char == '=') {
+	}
+	else if (current_token.lexem.symbol == symbol_colon && current_char == '=') {
 		current_token.lexem.id[1] = '=';
 		current_token.lexem.id[2] = '\0';
 		read_char();
 		current_token.lexem.symbol = symbol_becomes;
-	} else if (current_token.lexem.symbol == symbol_open_paren	&& current_char == '*') {
+	}
+	else if (current_token.lexem.symbol == symbol_period && current_char == 'o') {
+		read_char();
+		if (current_char == 'u')
+			read_char();
+		// TODO: Adicionar verificação de erros!
+		if (current_char == '.')
+			read_char();
+		strcat(current_token.lexem.id, "ou.");
+		current_token.lexem.symbol = symbol_or;
+	}
+	else if (current_token.lexem.symbol == symbol_open_paren	&& current_char == '*') {
 		read_char();
 		// Ignora os caracteres entre “(*” e “*)” como sendo comentários e entra novamente na função para buscar o próximo
 		// lexema válido

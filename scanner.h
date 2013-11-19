@@ -58,7 +58,7 @@ typedef enum _symbol {
 	symbol_var = 59,
 	symbol_proc = 60,
 	symbol_begin = 61,
-	symbol_module = 63,
+	symbol_program = 63,
 	symbol_eof = 64
 } symbol_t;
 
