@@ -577,21 +577,25 @@ void comment()
 
 void read_token()
 {
-	last_token = current_token;
-	// Salta os caracteres em branco, incluindo símbolos de quebra de linha
-	while (is_blank(current_char))
-		read_char();
+	// O “last_token” não é mais usado... deixei aqui só por precaução
+	// last_token = current_token;
 	if (feof(input_file)) {
-		strcpy(current_token.lexem.id, "EOF");
-		current_token.lexem.symbol = symbol_eof;
+		if (current_token.lexem.symbol != symbol_eof) {
+			strcpy(current_token.lexem.id, "EOF");
+			current_token.lexem.symbol = symbol_eof;
+		}
 		return;
 	}
+	// Salta os caracteres em branco
+	while (is_blank(current_char))
+		read_char();
 	// Os casos de um identificador ou um número são considerados separadamente para que o código no “switch” não precise
 	// incluir uma chamada a “read_char” em cada “case”
 	if (is_letter(current_char)) {
 		id();
 		return;
-	} else if (is_digit(current_char)) {
+	}
+	else if (is_digit(current_char)) {
 		number();
 		return;
 	}
