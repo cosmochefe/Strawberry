@@ -262,7 +262,7 @@ void write_label(item_t *item, const char *label)
 		// um rótulo válido
 		fpos_t position;
 		fgetpos(output_file, &position);
-		sprintf(item->label, "L_%.14lld", position);
+		sprintf(item->label, "L_%lld", position);
 	}
 	output("%s:", item->label);
 }

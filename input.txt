@@ -5,9 +5,9 @@ var
 	a, b: integer;
 
 begin
-	repeat
-		a := a + 1
-	until a > 10;
+	if a > 0 then
+		a := a - 1
+	end;
 	b := a + b
 end Teste.
 
