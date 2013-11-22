@@ -7,22 +7,39 @@
 //
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "backend.h"
 #include "parser.h"
 
-const char *input_path  = "/Users/Alvaro/Dropbox/Programming/Projects/Oberon/Oberon/Input.txt";
-const char *output_path = "/Users/Alvaro/Dropbox/Programming/Projects/Oberon/Oberon/Output.txt";
+#define OUTPUT_EXTENSION ".asm"
 
 void initialize_backend(FILE *file);
 
 int main(int argc, const char *argv[])
 {
-	FILE *input_file = fopen(input_path, "r");
-	FILE *output_file = fopen(output_path, "w+");
-	if (!input_file || !output_file) {
-		printf("Input or output files could not be opened.\n");
-		return 0;
+	if (argc < 2) {
+		printf("Usage: stbry input [output]\n");
+		return EXIT_FAILURE;
+	}
+	FILE *input_file = fopen(argv[1], "r");
+	if (!input_file) {
+		printf("Input file could not be opened.\n");
+		return EXIT_FAILURE;
+	}
+	FILE *output_file;
+	if (argc > 2)
+		output_file = fopen(argv[2], "w+");
+	else {
+		char output_path[strlen(argv[1]) + strlen(OUTPUT_EXTENSION) + 1];
+		strcpy(output_path, argv[1]);
+		strcat(output_path, OUTPUT_EXTENSION);
+		output_file = fopen(output_path, "w+");
+	}
+	if (!output_file) {
+		printf("Output file could not be created.\n");
+		return EXIT_FAILURE;
 	}
 	if (!initialize_parser(input_file))
 		printf("Empty or damaged input file.\n");
@@ -32,5 +49,5 @@ int main(int argc, const char *argv[])
 	}
 	fclose(input_file);
 	fclose(output_file);
-	return 0;
+	return EXIT_SUCCESS;
 }
