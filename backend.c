@@ -17,6 +17,8 @@
 #include "symbol_table.h"
 
 #define REGISTER_INDEX_COUNT 32
+#define BACKEND_FORWARD_LABEL "????????????????"
+#define BACKEND_EMPTY_LABEL "                "
 
 FILE *output_file = NULL;
 unsigned char register_index = 0;
@@ -217,66 +219,68 @@ void write_comparison(symbol_t symbol, item_t *item, item_t *rhs_item)
 	dec_index(2);
 }
 
-void write_branch(item_t *item, bool link)
+void write_branch(item_t *item, bool forward)
 {
 	if (!item) return;
-	char suffix[] = "  ";
 	switch (item->condition) {
-		case symbol_equal: strcpy(suffix, "EQ"); break;
-		case symbol_not_equal: strcpy(suffix, "NE"); break;
-		case symbol_less: strcpy(suffix, "LS"); break;
-		case symbol_less_equal: strcpy(suffix, "LE"); break;
-		case symbol_greater: strcpy(suffix, "GR"); break;
-		case symbol_greater_equal: strcpy(suffix, "GE"); break;
-		default: break;
+		case symbol_equal: output_text("BREQ "); break;
+		case symbol_not_equal: output_text("BRNE "); break;
+		case symbol_less: output_text("BRLS "); break;
+		case symbol_less_equal: output_text("BRLE "); break;
+		case symbol_greater: output_text("BRGR "); break;
+		case symbol_greater_equal: output_text("BRGE "); break;
+		default: output_text("JUMP "); break;
 	}
-	output_text("BR%s L_", suffix);
-	fpos_t position;
-	fgetpos(output_file, &position);
-	if (link)
-		output("%.8lld", item->link);
-	else
-		output("????????");
-	item->link = position;
+	if (forward) {
+		fpos_t position;
+		fgetpos(output_file, &position);
+		append_link(create_link(position), &item->links);
+		output(BACKEND_FORWARD_LABEL);
+	}
+	else {
+		if (item->label)
+			output(item->label);
+		else
+			output("GOD_KNOWS_WHERE!");
+	}
 }
 
-void write_inverse_branch(item_t *item, bool link)
+void write_inverse_branch(item_t *item, bool forward)
 {
 	if (!item) return;
 	item->condition = inverse_condition(item->condition);
-	write_branch(item, link);
+	write_branch(item, forward);
 }
 
-void write_label(item_t *item, bool new_link)
+void write_label(item_t *item, const char *label)
 {
 	if (!item) return;
-	if (new_link)
-		fgetpos(output_file, &item->link);
-	output("L_%.8lld:", item->link);
-}
-
-void write_fixup(item_t *item)
-{
-	if (!item) return;
-	fpos_t link, position, link_position;
-	char new_position[9];
-	fgetpos(output_file, &link);
-  output("L_%.8lld:", link);
-	fgetpos(output_file, &position);
-	link_position = item->link;
-	bool stop = false;
-	while (true) {
-		fsetpos(output_file, &link_position);
-		fread(new_position, sizeof(new_position) - 1, 1, output_file);
-		new_position[8] = '\0';
-		fsetpos(output_file, &link_position);
-		fprintf(output_file, "%.8lld", link);
-		if (stop)
-			break;
-		if (strcmp(new_position, "????????") != 0)
-			link_position = atol(new_position);
-		else
-			stop = true;
+	if (label)
+		strncpy(item->label, label, SYMBOL_TABLE_MAX_LABEL_LENGTH);
+	else {
+		// Se o rótulo não for passado como parâmetro, a própria posição no arquivo de saída é usada como base para criar
+		// um rótulo válido
+		fpos_t position;
+		fgetpos(output_file, &position);
+		sprintf(item->label, "L_%.14lld", position);
 	}
+	output("%s:", item->label);
+}
+
+void write_fixup(item_t *item, bool clear)
+{
+	if (!item) return;
+	fpos_t position;
+	fgetpos(output_file, &position);
+	link_t *link = item->links;
+	while (link) {
+		fsetpos(output_file, &link->position);
+		fprintf(output_file, BACKEND_EMPTY_LABEL);
+		fsetpos(output_file, &link->position);
+		fprintf(output_file, "%s", item->label);
+		link = link->next;
+	}
+	if (clear)
+		clear_links(&item->links);
 	fsetpos(output_file, &position);
 }

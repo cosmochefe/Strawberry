@@ -58,6 +58,7 @@
 //
 
 #include <stdbool.h>
+#include <string.h>
 
 #include "backend.h"
 #include "errors.h"
@@ -321,10 +322,10 @@ void proc_call(entry_t *entry)
 
 void stmt_sequence();
 
-void write_branch(item_t *item, bool link);
-void write_inverse_branch(item_t *item, bool link);
-void write_label(item_t *item);
-void write_fixup(item_t *item);
+void write_branch(item_t *item, bool forward);
+void write_inverse_branch(item_t *item, bool forward);
+void write_label(item_t *item, const char *label);
+void write_fixup(item_t *item, bool clear);
 
 // if_stmt = "if" expr "then" stmt_sequence {"elsif" expr "then" stmt_sequence} ["else" stmt_sequence] "end"
 void if_stmt()
@@ -332,31 +333,38 @@ void if_stmt()
 	item_t expr_item, end_item;
 	try_consume(symbol_if);
 	expr(&expr_item);
-	write_inverse_branch(&expr_item, false);
+	expr_item.links = NULL;
+	write_inverse_branch(&expr_item, true);
 	consume(symbol_then);
 	stmt_sequence();
 	// Este item serve como base para o salto para o final da estrutura condicional
 	end_item.addressing = addressing_condition;
 	end_item.condition = symbol_null;
-	end_item.link = 0;
+	end_item.links = NULL;
 	while (try_consume(symbol_elsif)) {
-		write_branch(&end_item, end_item.link != 0);
-		write_fixup(&expr_item);
+		write_branch(&end_item, true);
+		write_label(&expr_item, NULL);
+		write_fixup(&expr_item, true);
 		expr(&expr_item);
-		write_inverse_branch(&expr_item, false);
+		write_inverse_branch(&expr_item, true);
 		consume(symbol_then);
 		stmt_sequence();
 	}
 	if (try_consume(symbol_else)) {
-		write_branch(&end_item, end_item.link != 0);
-		write_fixup(&expr_item);
+		write_branch(&end_item, true);
+		write_label(&expr_item, NULL);
+		write_fixup(&expr_item, true);
 		stmt_sequence();
-		write_fixup(&end_item);
+		write_label(&end_item, NULL);
+		write_fixup(&end_item, true);
 	}
 	else {
-		write_fixup(&expr_item);
-		if (end_item.link)
-			write_fixup(&end_item);
+		write_label(&expr_item, NULL);
+		write_fixup(&expr_item, true);
+		if (end_item.links) {
+			strcpy(end_item.label, expr_item.label);
+			write_fixup(&end_item, true);
+		}
 	}
 	consume(symbol_end);
 }
@@ -366,26 +374,29 @@ void while_stmt()
 {
 	try_consume(symbol_while);
 	item_t expr_item;
+	expr_item.links = NULL;
 	expr(&expr_item);
-	write_inverse_branch(&expr_item, false);
+	write_inverse_branch(&expr_item, true);
+	consume(symbol_do);
 	item_t back_item;
 	back_item.addressing = addressing_condition;
 	back_item.condition = symbol_null;
-	back_item.link = 0;
-	write_label(&back_item);
-	consume(symbol_do);
+	back_item.links = NULL;
+	write_label(&back_item, NULL);
 	stmt_sequence();
 	write_branch(&back_item, false);
 	consume(symbol_end);
-	write_fixup(&expr_item);
+	write_label(&expr_item, NULL);
+	write_fixup(&expr_item, true);
 }
 
 // repeat_stmt = "repeat" stmt_sequence "until" expr
 void repeat_stmt()
 {
-	item_t expr_item;
 	try_consume(symbol_repeat);
-	write_label(&expr_item);
+	item_t expr_item;
+	expr_item.links = NULL;
+	write_label(&expr_item, NULL);
 	stmt_sequence();
 	consume(symbol_until);
 	expr(&expr_item);

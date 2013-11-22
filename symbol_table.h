@@ -14,6 +14,8 @@
 #include "backend.h"
 #include "scanner.h"
 
+#define SYMBOL_TABLE_MAX_LABEL_LENGTH 16
+
 typedef enum _class {
 	class_unknown,
 	class_var,
@@ -57,6 +59,11 @@ typedef enum _addressing {
   addressing_condition
 } addressing_t;
 
+typedef struct _link {
+	fpos_t position;
+	struct _link *next;
+} link_t;
+
 typedef struct _item {
 	addressing_t addressing;
 	struct _type *type;
@@ -64,7 +71,8 @@ typedef struct _item {
 	value_t value;			 // Para constantes
 	unsigned char index; // Para registradores
   symbol_t condition;  // Para condicionais
-	fpos_t link;
+	char label[SYMBOL_TABLE_MAX_LABEL_LENGTH + 1];
+	link_t *links;
 } item_t;
 
 // TODO: Adicionar árvore de tabelas para gerenciar escopo
@@ -75,12 +83,15 @@ extern entry_t *integer_type;
 extern entry_t *boolean_type;
 
 type_t *create_type(form_t form, value_t length, unsigned int size, entry_t *fields, type_t *base);
+link_t *create_link(fpos_t position);
 entry_t *create_entry(identifier_t id, position_t position, class_t class);
 
 bool initialize_table(address_t base_address, entry_t **ref);
 void clear_table(entry_t **ref);
+void clear_links(link_t **ref);
 void log_table(entry_t *table);
 entry_t *find_entry(identifier_t id, entry_t *table);
 bool append_entry(entry_t *entry, entry_t **ref);
+bool append_link(link_t *link, link_t **ref);
 
 #endif

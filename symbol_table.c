@@ -72,6 +72,18 @@ type_t *create_type(form_t form, value_t length, unsigned int size, entry_t *fie
 	return type;
 }
 
+link_t *create_link(fpos_t position)
+{
+	link_t *link = (link_t *)malloc(sizeof(link_t));
+	if (!link) {
+		mark(error_fatal, "Not enough memory. By the way, who are you and what the hell is 42?");
+		return NULL;
+	}
+	link->position = position;
+	link->next = NULL;
+	return link;
+}
+
 entry_t *create_entry(identifier_t id, position_t position, class_t class)
 {
 	entry_t *new_entry = (entry_t *)malloc(sizeof(entry_t));
@@ -87,6 +99,17 @@ entry_t *create_entry(identifier_t id, position_t position, class_t class)
 	new_entry->value = 0;
 	new_entry->next = NULL;
 	return new_entry;
+}
+
+void clear_links(link_t **ref)
+{
+	link_t *links = *ref;
+	while (links) {
+		link_t *current = links;
+		links = current->next;
+		free(current);
+	}
+	*ref = NULL;
 }
 
 void clear_table(entry_t **ref)
@@ -141,6 +164,22 @@ bool append_entry(entry_t *entry, entry_t **ref)
 		while (table->next)
 			table = table->next;
 		table->next = entry;
+	}
+	return true;
+}
+
+bool append_link(link_t *link, link_t **ref)
+{
+	if (!ref || !link)
+		return false;
+	link_t *links = *ref;
+	link_t *l = link;
+	if (!links)
+		*ref = link;
+	else {
+		while (links->next)
+			links = links->next;
+		links->next = link;
 	}
 	return true;
 }
