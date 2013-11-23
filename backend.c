@@ -81,7 +81,10 @@ void write_store(item_t *dst_item, item_t *src_item)
 	if (!dst_item || !src_item) return;
 	// Se o item de origem já estiver em um registrador, a função “write_load” não mudará nada
 	write_load(src_item);
-	output("STORE [%.4X], R%d", dst_item->address, src_item->index);
+	if (dst_item->addressing == addressing_indirect)
+		output("STORE [R%d], R%d", dst_item->index, src_item->index);
+	else
+		output("STORE [%.4X], R%d", dst_item->address, src_item->index);
 	dst_item->addressing = addressing_register;
 	dst_item->index = src_item->index;
 	// TODO: Se for reaproveitar o destino para as próximas contas, é necessário reduzir o índice de registradores?
