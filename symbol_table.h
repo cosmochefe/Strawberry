@@ -75,7 +75,7 @@ typedef struct _item {
 	link_t *links;
 } item_t;
 
-// TODO: Adicionar árvore de tabelas para gerenciar escopo
+// TODO: Criar uma estrutura de dados real e organizar todas essa bagunça!
 
 extern entry_t *symbol_table;
 extern address_t current_address;
