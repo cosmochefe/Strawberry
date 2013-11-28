@@ -19,8 +19,8 @@ typedef enum _symbol {
 
 	//aritméticos
 	symbol_times = 1,
-	symbol_division = 2,
-	symbol_div = 3,
+	symbol_division = 2, //divisão
+	symbol_div = 3, //divisão de número inteiro
 	//symbol_mod = 4,
 	symbol_plus = 6,
 	symbol_minus = 7,
@@ -50,42 +50,42 @@ typedef enum _symbol {
 	symbol_open_paren = 29,
 	symbol_open_bracket = 30,
 	symbol_open_braces = 31,
-	symbol_becomes = 33,
+	symbol_becomes = 33, //atribuição
 	symbol_semicolon = 38,
-	symbol_range = 77,
+	symbol_range = 77, //".."
 
 	//elemento léxico
 	symbol_number = 34,
 	symbol_id = 37,
 
 	//palavras-chave
-	symbol_of = 25,
-	symbol_then = 26,
-	symbol_do = 27,
-	symbol_end = 40,
-	symbol_end_if = 66,
-	symbol_end_case = 67,
-	symbol_end_while = 68,
-	symbol_end_for = 69,
-	symbol_end_until_true = 70,
-	symbol_else = 41,
+	symbol_of = 25, //de
+	symbol_then = 26, //então
+	symbol_do = 27, // faça
+	symbol_end = 40, //fim
+	symbol_end_if = 66, //fim_se
+	symbol_end_case = 67, //fim_caso
+	symbol_end_while = 68, //fim_enquanto
+	symbol_end_for = 69, //fim_para
+	symbol_end_until_true = 70, //fimaté_seja
+	symbol_else = 41, //senão
 	//symbol_elsif = 42,
-	symbol_until = 43,
-	symbol_if = 44,
-	symbol_case = 45,
-	symbol_while = 46,
-	symbol_repeat = 47,
-	symbol_for = 48,
-	symbol_until_true = 49,
-	symbol_is = 50,
-	symbol_perform = 51,
-	symbol_execute = 52,
-	symbol_while_is = 53,
-	symbol_loop = 71,
-	symbol_leave_if = 72,
-	symbol_from = 73,
-	symbol_up_to = 74,
-	symbol_step = 75,
+	symbol_until = 43, //até_que
+	symbol_if = 44, //se
+	symbol_case = 45, //caso
+	symbol_while = 46, //enquanto
+	symbol_repeat = 47, //repita
+	symbol_for = 48, //para
+	symbol_until_true = 49, //até_seja
+	symbol_is = 50, //seja
+	symbol_perform = 51, //efetue
+	symbol_execute = 52, //execute
+	symbol_while_is = 53, //enquanto_for
+	symbol_loop = 71, //laço
+	symbol_leave_if = 72, //saia_caso
+	symbol_from = 73, //de
+	symbol_up_to = 74, //até
+	symbol_step = 75, //passo
 	symbol_array = 54,
 	symbol_record = 55,
 	symbol_const = 57,
@@ -93,9 +93,9 @@ typedef enum _symbol {
 	symbol_var = 59,
 	//symbol_proc = 60,
 	symbol_func = 60,
-	symbol_read = 78,
-	symbol_write = 79,
-	symbol_begin = 61,
+	symbol_read = 78, //leia
+	symbol_write = 79, //escreva
+	symbol_begin = 61, //inicio
 	//symbol_module = 63,
 	symbol_program = 63,
 	symbol_eof = 64
