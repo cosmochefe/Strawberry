@@ -39,7 +39,7 @@ void dec_index(unsigned char amount)
 	register_index = (register_index - amount) % REGISTER_INDEX_COUNT;
 }
 
-void output_text(const char *text, ...)
+void write(const char *text, ...)
 {
 	va_list args;
 	va_start(args, text);
@@ -47,7 +47,7 @@ void output_text(const char *text, ...)
 	va_end(args);
 }
 
-void output(const char *instruction, ...)
+void write_line(const char *instruction, ...)
 {
 	va_list args;
 	va_start(args, instruction);
@@ -61,11 +61,11 @@ void write_load(item_t *item)
 {
 	if (!item) return;
 	if (item->addressing == addressing_immediate)
-		output("LOAD R%d, %d", register_index, item->value);
+		write_line("LOAD R%d, %d", register_index, item->value);
 	else if (item->addressing == addressing_direct)
-		output("LOAD R%d, [%.4X]", register_index, item->address);
+		write_line("LOAD R%d, [%.4X]", register_index, item->address);
 	else if (item->addressing == addressing_indirect) {
-		output("LOAD R%d, [R%d]", item->index, item->index);
+		write_line("LOAD R%d, [R%d]", item->index, item->index);
 		item->addressing = addressing_register;
 		return;
 	}
@@ -82,9 +82,9 @@ void write_store(item_t *dst_item, item_t *src_item)
 	// Se o item de origem já estiver em um registrador, a função “write_load” não mudará nada
 	write_load(src_item);
 	if (dst_item->addressing == addressing_indirect)
-		output("STORE [R%d], R%d", dst_item->index, src_item->index);
+		write_line("STORE [R%d], R%d", dst_item->index, src_item->index);
 	else
-		output("STORE [%.4X], R%d", dst_item->address, src_item->index);
+		write_line("STORE [%.4X], R%d", dst_item->address, src_item->index);
 	dst_item->addressing = addressing_register;
 	dst_item->index = src_item->index;
 	// TODO: Se for reaproveitar o destino para as próximas contas, é necessário reduzir o índice de registradores?
@@ -96,21 +96,21 @@ void write_index_offset(item_t *item, item_t *index_item)
 	if (!item || !index_item) return;
   // TODO: Adicionar rotina “trap” para índices fora do limite
 	write_load(index_item);
-	output("MUL R%d, %d", index_item->index, item->type->base->size);
+	write_line("MUL R%d, %d", index_item->index, item->type->base->size);
 	if (item->addressing == addressing_direct) {
-		output("ADD R%d, %d", index_item->index, item->address);
+		write_line("ADD R%d, %d", index_item->index, item->address);
 		item->index = index_item->index;
 		item->addressing = addressing_indirect;
 	}
 	else if (item->addressing == addressing_indirect) {
-		output("ADD R%d, R%d", item->index, index_item->index);
+		write_line("ADD R%d, R%d", item->index, index_item->index);
 		dec_index(1);
 	}
 }
 
 void write_field_offset(item_t *item, address_t offset)
 {
-	output("ADD R%d, %d", item->index, offset);
+	write_line("ADD R%d, %d", item->index, offset);
 }
 
 void write_unary_op(symbol_t symbol, item_t *item)
@@ -123,14 +123,14 @@ void write_unary_op(symbol_t symbol, item_t *item)
 			return;
 		}
 		write_load(item);
-		output("NEG R%d", item->index);
+		write_line("NEG R%d", item->index);
 	} else if (symbol == symbol_not) {
 		if (item->addressing == addressing_immediate) {
 			item->value = ~item->value;
 			return;
 		}
 		write_load(item);
-		output("NOT R%d", item->index);
+		write_line("NOT R%d", item->index);
 	}
 	// TODO: Verificar operadores unários inválidos
 }
@@ -182,27 +182,27 @@ void write_binary_op(symbol_t symbol, item_t *item, item_t *rhs_item)
 			if (keep_order) {
 				// TODO: Trocar a ordem dos índices para remover a instrução “MOV”
 				write_load(item);
-				output("%s R%d, R%d", opcode, item->index, rhs_item->index);
+				write_line("%s R%d, R%d", opcode, item->index, rhs_item->index);
 				// É preciso mover o resultado para o registrador de menor índice (neste caso, o do segundo operando) para que
 				// o índice de registradores em uso possa ser reduzido, evitando que a quantidade disponível de registradores
 				// esgote-se
-				output("MOV R%d, R%d", rhs_item->index, item->index);
+				write_line("MOV R%d, R%d", rhs_item->index, item->index);
 				item->index = rhs_item->index;
 				dec_index(1);
 				return;
 			}
-			output("%s R%d, %d", opcode, rhs_item->index, item->value);
+			write_line("%s R%d, %d", opcode, rhs_item->index, item->value);
 			item->addressing = addressing_register;
 			item->index = rhs_item->index;
 		} else if (rhs_item->addressing == addressing_immediate) {
 			write_load(item);
-			output("%s R%d, %d", opcode, item->index, rhs_item->value);
+			write_line("%s R%d, %d", opcode, item->index, rhs_item->value);
 		} else {
 			write_load(item);
 			write_load(rhs_item);
-			output("%s R%d, R%d", opcode, item->index, rhs_item->index);
+			write_line("%s R%d, R%d", opcode, item->index, rhs_item->index);
 			if (item->index > rhs_item->index) {
-				output("MOV R%d, R%d", rhs_item->index, item->index);
+				write_line("MOV R%d, R%d", rhs_item->index, item->index);
 				item->index = rhs_item->index;
 			}
 			dec_index(1);
@@ -215,44 +215,54 @@ void write_comparison(symbol_t symbol, item_t *item, item_t *rhs_item)
 	if (!item || !rhs_item) return;
 	write_load(item);
 	write_load(rhs_item);
-	output("CMP R%d, R%d", item->index, rhs_item->index);
+	write_line("CMP R%d, R%d", item->index, rhs_item->index);
 	item->addressing = addressing_condition;
 	item->condition = symbol;
 	// É necessário liberar ambos os registradores após a comparação. Ou não?
 	dec_index(2);
 }
 
-void write_branch(item_t *item, bool forward)
+void write_conditional_branch(symbol_t condition)
 {
-	if (!item) return;
-	switch (item->condition) {
-		case symbol_equal: output_text("BREQ "); break;
-		case symbol_not_equal: output_text("BRNE "); break;
-		case symbol_less: output_text("BRLS "); break;
-		case symbol_less_equal: output_text("BRLE "); break;
-		case symbol_greater: output_text("BRGR "); break;
-		case symbol_greater_equal: output_text("BRGE "); break;
-		default: output_text("JUMP "); break;
-	}
+	switch (condition) {
+		case symbol_equal: write("BREQ "); break;
+		case symbol_not_equal: write("BRNE "); break;
+		case symbol_less: write("BRLS "); break;
+		case symbol_less_equal: write("BRLE "); break;
+		case symbol_greater: write("BRGR "); break;
+		case symbol_greater_equal: write("BRGE "); break;
+		default: write("JUMP "); break;
+	}	
+}
+
+void write_branch_link(item_t *item, bool forward)
+{
 	if (forward) {
 		fpos_t position;
 		fgetpos(output_file, &position);
-		append_link(create_link(position), &item->links);
-		output(BACKEND_FORWARD_LABEL);
+		add_link(create_link(position), &item->links);
+		write_line(BACKEND_FORWARD_LABEL);
 	}
 	else {
 		if (item->label)
-			output(item->label);
+			write_line(item->label);
 		else
-			output("GOD_KNOWS_WHERE!");
-	}
+			write_line("GOD_KNOWS_WHERE!");
+	}	
+}
+
+void write_branch(item_t *item, bool forward)
+{
+	if (!item) return;
+	write_conditional_branch(item->condition);
+	write_branch_link(item, forward);
 }
 
 void write_inverse_branch(item_t *item, bool forward)
 {
 	if (!item) return;
-	item->condition = inverse_condition(item->condition);
-	write_branch(item, forward);
+	write_conditional_branch(inverse_condition(item->condition));
+	write_branch_link(item, forward);
 }
 
 void write_label(item_t *item, const char *label)
@@ -267,10 +277,10 @@ void write_label(item_t *item, const char *label)
 		fgetpos(output_file, &position);
 		sprintf(item->label, "L_%lld", position);
 	}
-	output("%s:", item->label);
+	write_line("%s:", item->label);
 }
 
-void write_fixup(item_t *item, bool clear)
+void write_fixup(item_t *item)
 {
 	if (!item) return;
 	fpos_t position;
@@ -283,7 +293,6 @@ void write_fixup(item_t *item, bool clear)
 		fprintf(output_file, "%s", item->label);
 		link = link->next;
 	}
-	if (clear)
-		clear_links(&item->links);
+	clear_links(&item->links);
 	fsetpos(output_file, &position);
 }

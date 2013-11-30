@@ -67,7 +67,7 @@ typedef enum _symbol {
 	symbol_end_case = 67, //fim_caso
 	symbol_end_while = 68, //fim_enquanto
 	symbol_end_for = 69, //fim_para
-	symbol_end_until_true = 70, //fimaté_seja
+	symbol_end_until_true = 70, //fim_até_seja
 	symbol_else = 41, //senão
 	//symbol_elsif = 42,
 	symbol_until = 43, //até_que

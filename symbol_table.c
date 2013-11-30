@@ -39,7 +39,7 @@ bool initialize_table(address_t base_address, entry_t **ref)
 	}
 	type->type = base_type;
   integer_type = type;
-	append_entry(type, ref);
+	add_entry(type, ref);
 	base_type = create_type(form_atomic, 0, sizeof(value_t), NULL, NULL);
 	if (!base_type) {
 		mark_at(error_fatal, position_zero, "Not enough memory. By the way, who are you and what the hell is 42?");
@@ -53,7 +53,7 @@ bool initialize_table(address_t base_address, entry_t **ref)
 	}
 	type->type = base_type;
   boolean_type = type;
-	append_entry(type, ref);
+	add_entry(type, ref);
 	return true;
 }
 
@@ -147,7 +147,18 @@ entry_t *find_entry(identifier_t id, entry_t *table)
 	return current;
 }
 
-bool append_entry(entry_t *entry, entry_t **ref)
+bool add_link(link_t *link, link_t **ref)
+{
+	if (!ref || !link)
+		return false;
+	link_t *links = *ref;
+	if (links)
+		link->next = links;
+	*ref = link;
+	return true;
+}
+
+bool add_entry(entry_t *entry, entry_t **ref)
 {
 	if (!ref || !entry)
 		return false;
@@ -164,22 +175,6 @@ bool append_entry(entry_t *entry, entry_t **ref)
 		while (table->next)
 			table = table->next;
 		table->next = entry;
-	}
-	return true;
-}
-
-bool append_link(link_t *link, link_t **ref)
-{
-	if (!ref || !link)
-		return false;
-	link_t *links = *ref;
-	link_t *l = link;
-	if (!links)
-		*ref = link;
-	else {
-		while (links->next)
-			links = links->next;
-		links->next = link;
 	}
 	return true;
 }

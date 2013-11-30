@@ -253,6 +253,7 @@ void term(item_t *item)
 	while (current_token.lexem.symbol >= symbol_times && current_token.lexem.symbol <= symbol_and) {
 		symbol_t symbol = current_token.lexem.symbol;
 		consume(symbol);
+		// TODO: Gerar a instrução de salto para o caminho falso para o operador lógico “&”
 		item_t rhs_item;
 		factor(&rhs_item);
 		write_binary_op(symbol, item, &rhs_item);
@@ -273,6 +274,7 @@ void simple_expr(item_t *item)
 	while (current_token.lexem.symbol >= symbol_plus && current_token.lexem.symbol <= symbol_or) {
 		symbol_t symbol = current_token.lexem.symbol;
 		consume(symbol);
+		// TODO: Gerar a instrução de salto para o caminho verdadeiro para o operador lógico “or”
 		item_t rhs_item;
 		term(&rhs_item);
 		write_binary_op(symbol, item, &rhs_item);
@@ -344,7 +346,7 @@ void if_stmt()
 	while (try_consume(symbol_elsif)) {
 		write_branch(&end_item, true);
 		write_label(&expr_item, NULL);
-		write_fixup(&expr_item, true);
+		write_fixup(&expr_item);
 		expr(&expr_item);
 		write_inverse_branch(&expr_item, true);
 		consume(symbol_then);
@@ -353,17 +355,17 @@ void if_stmt()
 	if (try_consume(symbol_else)) {
 		write_branch(&end_item, true);
 		write_label(&expr_item, NULL);
-		write_fixup(&expr_item, true);
+		write_fixup(&expr_item);
 		stmt_sequence();
 		write_label(&end_item, NULL);
-		write_fixup(&end_item, true);
+		write_fixup(&end_item);
 	}
 	else {
 		write_label(&expr_item, NULL);
-		write_fixup(&expr_item, true);
+		write_fixup(&expr_item);
 		if (end_item.links) {
 			strcpy(end_item.label, expr_item.label);
-			write_fixup(&end_item, true);
+			write_fixup(&end_item);
 		}
 	}
 	consume(symbol_end);
@@ -387,7 +389,7 @@ void while_stmt()
 	write_branch(&back_item, false);
 	consume(symbol_end);
 	write_label(&expr_item, NULL);
-	write_fixup(&expr_item, true);
+	write_fixup(&expr_item);
 }
 
 // repeat_stmt = "repeat" stmt_sequence "until" expr
@@ -474,7 +476,7 @@ entry_t *id_list()
 	scan();
 	while (try_consume(symbol_comma)) {
 		if (assert(symbol_id)) {
-			append_entry(create_entry(current_token.lexem.id, current_token.position, class_var), &new_entries);
+			add_entry(create_entry(current_token.lexem.id, current_token.position, class_var), &new_entries);
 			scan();
 		}
 	}
@@ -535,7 +537,7 @@ type_t *record_type()
 	while (try_consume(symbol_semicolon)) {
 		entry_t *more_fields = field_list();
 		if (fields && more_fields)
-			append_entry(more_fields, &fields);
+			add_entry(more_fields, &fields);
 	}
 	// Efetua o cálculo do tamanho do tipo registro e dos deslocamentos de cada campo
 	unsigned int size = 0;
@@ -614,7 +616,7 @@ entry_t *formal_params()
 	if (is_first("formal_params_section", current_token.lexem.symbol)) {
 		params = formal_params_section();
 		while (try_consume(symbol_semicolon))
-			append_entry(formal_params_section(), &params);
+			add_entry(formal_params_section(), &params);
 	}
 	consume(symbol_close_paren);
 	return params;
@@ -677,7 +679,7 @@ void const_decl()
 		if (assert(symbol_number)) {
 			if (new_entry) {
 				new_entry->value = current_token.value;
-				append_entry(new_entry, &symbol_table);
+				add_entry(new_entry, &symbol_table);
 			}
 			scan();
 		}
@@ -697,7 +699,7 @@ void type_decl()
 		type_t *base = type();
 		if (new_entry && base) {
 			new_entry->type = base;
-			append_entry(new_entry, &symbol_table);
+			add_entry(new_entry, &symbol_table);
 		}
 		consume(symbol_semicolon);
 	}
@@ -718,7 +720,7 @@ void var_decl()
 			current_address += e->type->size;
 			e = e->next;
 		}
-		append_entry(new_entries, &symbol_table);
+		add_entry(new_entries, &symbol_table);
 		consume(symbol_semicolon);
 	}
 }
