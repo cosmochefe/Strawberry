@@ -47,6 +47,7 @@ typedef enum _symbol {
 	symbol_close_paren = 22,
 	symbol_close_bracket = 23,
 	symbol_close_braces = 24,
+	symbol_quotes = 28,
 	symbol_open_paren = 29,
 	symbol_open_bracket = 30,
 	symbol_open_braces = 31,
@@ -55,7 +56,8 @@ typedef enum _symbol {
 	symbol_range = 77, //".."
 
 	//elemento léxico
-	symbol_number = 34,
+	symbol_integer = 34,
+	symbol_real = 35,
 	symbol_id = 37,
 
 	//palavras-chave

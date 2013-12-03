@@ -79,9 +79,9 @@ lexem_t keywords[] = {
 	{ .id = "se",						.symbol = symbol_if },
 	{ .id = "de",						.symbol = symbol_of },
 	{ .id = "OU",						.symbol = symbol_or },
-  { .id = "XOU",					.symbol = symbol_xor },
+	{ .id = "XOU",					.symbol = symbol_xor },
 	{ .id = "fim",					.symbol = symbol_end },
-//	{ .id = "mod",					.symbol = symbol_mod },
+//	{ .id = "mod",				.symbol = symbol_mod },
 	{ .id = "var",					.symbol = symbol_var },
 	{ .id = "senão",				.symbol = symbol_else },
 	{ .id = "então",				.symbol = symbol_then },
@@ -89,26 +89,26 @@ lexem_t keywords[] = {
 	{ .id = "matriz",				.symbol = symbol_array },
 	{ .id = "início",				.symbol = symbol_begin },
 	{ .id = "const",				.symbol = symbol_const },
-//	{ .id = "elsif",			.symbol = symbol_elsif },
-	{ .id = "até_que",			.symbol = symbol_until },
-	{ .id = "enquanto",			.symbol = symbol_while },
+//	{ .id = "elsif",		  .symbol = symbol_elsif },
+	{ .id = "até_que",		  .symbol = symbol_until },
+	{ .id = "enquanto",		  .symbol = symbol_while },
 	{ .id = "record",				.symbol = symbol_record },
 	{ .id = "repita",				.symbol = symbol_repeat },
-//	{ .id = "procedure",	    .symbol = symbol_proc },
+//	{ .id = "procedure",  .symbol = symbol_proc },
 	{ .id = "div",					.symbol = symbol_div },
-//	{ .id = "module",			.symbol = symbol_module },
+//	{ .id = "module",		  .symbol = symbol_module },
 	{ .id = "fim_se",				.symbol = symbol_end_if },
-	{ .id = "fim_caso",			.symbol = symbol_end_case },
-	{ .id = "fim_para",			.symbol = symbol_end_for },
-	{ .id = "fim_até_seja",	.symbol = symbol_end_until_true },
+	{ .id = "fim_caso",		  .symbol = symbol_end_case },
+	{ .id = "fim_para",	    .symbol = symbol_end_for },
+	{ .id = "fim_até_seja", .symbol = symbol_end_until_true },
 	{ .id = "caso", 				.symbol = symbol_case },
-	{ .id = "enquanto",			.symbol = symbol_while },
+	{ .id = "enquanto",	    .symbol = symbol_while },
 	{ .id = "para", 				.symbol = symbol_for },
-	{ .id = "até_seja",			.symbol = symbol_until_true },
+	{ .id = "até_seja",		  .symbol = symbol_until_true },
 	{ .id = "seja", 				.symbol = symbol_is },
 	{ .id = "efetue",				.symbol = symbol_perform },
-	{ .id = "execute",			.symbol = symbol_execute },
-	{ .id = "enquanto_for",	.symbol = symbol_while_is },
+	{ .id = "execute",		  .symbol = symbol_execute },
+	{ .id = "enquanto_for", .symbol = symbol_while_is },
 	{ .id = "laço", 				.symbol = symbol_loop },
 	{ .id = "saia_caso",		.symbol = symbol_leave_if },
 	{ .id = "de",   				.symbol = symbol_from },
@@ -136,10 +136,10 @@ lexem_t operators[] = {
 	{ .id = "<=",		.symbol = symbol_less_equal },
 	{ .id = ">",		.symbol = symbol_greater },
 	{ .id = ">=",		.symbol = symbol_greater_equal },
-//	{ .id = "~",	.symbol = symbol_not },
+//	{ .id = "~",	    .symbol = symbol_not },
 	{ .id = "NÃO",	.symbol = symbol_not },
 	{ .id = "<-",		.symbol = symbol_becomes },
-//	{ .id = ":=",	.symbol = symbol_becomes },
+//	{ .id = ":=",	    .symbol = symbol_becomes },
 	{ .id = "^",		.symbol = symbol_power }
 };
 const unsigned int operators_count = sizeof(keywords) / sizeof(lexem_t);
@@ -156,7 +156,8 @@ lexem_t punctuation[] = {
 	{ .id = "[",  .symbol = symbol_open_bracket },
 	{ .id = "{",  .symbol = symbol_open_braces },
 	{ .id = ";",  .symbol = symbol_semicolon },
-	{ .id = "..", .symbol = symbol_range },
+	{ .id = "\"", .symbol = symbol_quotes },
+	{ .id = "..", .symbol = symbol_range }
 };
 const unsigned int punctuation_count = sizeof(keywords) / sizeof(lexem_t);
 
@@ -177,7 +178,7 @@ bool is_digit(char c)
 
 bool is_blank(char c)
 {
-	return isspace(c);
+	return (c == ' ' || c == '\t');
 }
 
 bool is_newline(char c, char p)
@@ -552,13 +553,14 @@ void id()
 }
 
 // TODO: Adicionar verificação se o número é muito longo
-void integer()
+// Por definição, somente números positivos inteiros são reconhecidos
+void number()
 {
 	unsigned int index = 0;
 	current_token.position = current_position;
 	current_token.value = 0;
-	identifier_t id;
-	while (index < SCANNER_MAX_ID_LENGTH && is_digit(current_char)) {
+	identifier_t id; //o número em si
+	while (index < SCANNER_MAX_ID_LENGTH && is_digit(current_char)) { //para número inteiro
 		id[index] = current_char;
 		current_token.lexem.id[index] = current_char;
 		index++;
@@ -567,8 +569,22 @@ void integer()
 		if (!read_char())
 			break;
 	}
+	current_token.lexem.symbol = symbol_integer;
+	if (current_char == '.') { //para número real
+		float factor = 0.1;
+		while (index < SCANNER_MAX_ID_LENGTH && is_digit(current_char)) {
+			id[index] = current_char;
+			current_token.lexem.id[index] = current_char;
+			index++;
+			// Efetua o cálculo do valor, dígito-a-dígito, com base nos caracteres lidos
+			current_token.value = current_token.value + (current_char - '0') * factor;
+			factor *= 0.1;
+			if (!read_char())
+				break;
+		}
+		current_token.lexem.symbol = symbol_real;
+	}
 	current_token.lexem.id[index] = '\0';
-	current_token.lexem.symbol = symbol_number;
 	// Avalia se há caracteres inválidos após os dígitos do número
 	bool invalid_ending = false;
 	while (index < SCANNER_MAX_ID_LENGTH && (is_letter(current_char) || current_char == '_')) {
@@ -581,10 +597,13 @@ void integer()
 		mark(error_warning, "\"%s\" is not a number. Assuming \"%s\".", id, current_token.lexem.id);
 }
 
-// Por definição, somente números positivos inteiros são reconhecidos
-void number()
+void string ()
 {
-	integer();
+	read_char();
+	while (current_char != '\"') {
+		read_char();
+	}
+	read_char();
 }
 
 // Ao entrar nesta função, o analisador léxico já encontrou os caracteres "(*" que iniciam o comentário e “current_char”
@@ -606,7 +625,7 @@ void comment()
 	current_token.lexem.symbol = symbol_eof;
 }
 
-void read_token()
+void read_token() //analisador léxico
 {
 	// O “last_token” não é mais usado... deixei aqui só por precaução
 	// last_token = current_token;
@@ -628,6 +647,10 @@ void read_token()
 	}
 	else if (is_digit(current_char)) {
 		number();
+		return;
+	}
+	else if (current_char == '\"') {
+		string();
 		return;
 	}
 	current_token.position = current_position;
