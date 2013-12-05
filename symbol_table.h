@@ -91,7 +91,7 @@ void clear_table(entry_t **ref);
 void clear_links(link_t **ref);
 void log_table(entry_t *table);
 entry_t *find_entry(identifier_t id, entry_t *table);
-bool append_entry(entry_t *entry, entry_t **ref);
-bool append_link(link_t *link, link_t **ref);
+bool add_entry(entry_t *entry, entry_t **ref);
+bool add_link(link_t *link, link_t **ref);
 
 #endif

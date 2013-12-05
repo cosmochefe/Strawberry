@@ -1,0 +1,62 @@
+# depslib dependency file v1.0
+1386274418 source:c:\users\karen\documents\github\strawberry\errors.c
+	<stdio.h>
+	<stdlib.h>
+	<stdarg.h>
+	"scanner.h"
+	"errors.h"
+
+1386274649 c:\users\karen\documents\github\strawberry\scanner.h
+	<stdio.h>
+	<stdbool.h>
+	"backend.h"
+
+1384461833 c:\users\karen\documents\github\strawberry\backend.h
+	<stdio.h>
+	<limits.h>
+
+1384461833 c:\users\karen\documents\github\strawberry\errors.h
+	"scanner.h"
+
+1386275550 source:c:\users\karen\documents\github\strawberry\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"backend.h"
+	"scanner.h"
+
+1384461834 c:\users\karen\documents\github\strawberry\parser.h
+	<stdio.h>
+	<stdbool.h>
+
+1386274654 source:c:\users\karen\documents\github\strawberry\scanner.c
+	<stdio.h>
+	<string.h>
+	<ctype.h>
+	"errors.h"
+	"scanner.h"
+
+1385957266 source:c:\users\karen\documents\github\strawberry\symbol_table.c
+	<stdlib.h>
+	<stdbool.h>
+	<string.h>
+	"backend.h"
+	"errors.h"
+	"scanner.h"
+	"symbol_table.h"
+
+1386274790 c:\users\karen\documents\github\strawberry\symbol_table.h
+	<stdbool.h>
+	"backend.h"
+	"scanner.h"
+
+1386274890 source:c:\users\karen\documents\github\strawberry\backend.c
+	<stdio.h>
+	<stdlib.h>
+	<stdarg.h>
+	<stdbool.h>
+	<strings.h>
+	"backend.h"
+	"errors.h"
+	"symbol_table.h"
+
