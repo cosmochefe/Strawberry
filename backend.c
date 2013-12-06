@@ -71,7 +71,7 @@ void write_load(item_t *item)
 	}
 	else
 		return; // TODO: Devo verificar e apontar erro ou deixar como está?
-	item->addressing = addressing_register;	
+	item->addressing = addressing_register;
 	item->index = register_index;
 	inc_index(1);
 }
@@ -147,8 +147,8 @@ void write_binary_op(symbol_t symbol, item_t *item, item_t *rhs_item)
 			item->value = item->value * rhs_item->value;
 		else if (symbol == symbol_div)
 			item->value = item->value / rhs_item->value;
-		else if (symbol == symbol_mod)
-			item->value = item->value % rhs_item->value;
+//		else if (symbol == symbol_mod)
+//			item->value = item->value % rhs_item->value;
 		else if (symbol == symbol_and)
 			item->value = item->value & rhs_item->value;
 		else if (symbol == symbol_or)
@@ -168,9 +168,9 @@ void write_binary_op(symbol_t symbol, item_t *item, item_t *rhs_item)
 		} else if (symbol == symbol_div) {
 			strcpy(opcode, "DIV");
 			keep_order = true;
-		} else if (symbol == symbol_mod) {
-			strcpy(opcode, "MOD");
-			keep_order = true;
+//		} else if (symbol == symbol_mod) {
+//			strcpy(opcode, "MOD");
+//			keep_order = true;
 		} else if (symbol == symbol_and) {
 			strcpy(opcode, "AND");
 		} else if (symbol == symbol_or) {
@@ -232,7 +232,7 @@ void write_conditional_branch(symbol_t condition)
 		case symbol_greater: write("BRGR "); break;
 		case symbol_greater_equal: write("BRGE "); break;
 		default: write("JUMP "); break;
-	}	
+	}
 }
 
 void write_branch_link(item_t *item, bool forward)
@@ -248,7 +248,7 @@ void write_branch_link(item_t *item, bool forward)
 			write_line(item->label);
 		else
 			write_line("GOD_KNOWS_WHERE!");
-	}	
+	}
 }
 
 void write_branch(item_t *item, bool forward)

@@ -96,8 +96,10 @@ void mark_missing(symbol_t symbol)
 {
 	if (symbol == symbol_id)
 		mark(error_parser, "Missing identifier.");
-	else if (symbol == symbol_number)
-		mark(error_parser, "Missing number.");
+	else if (symbol == symbol_integer)
+		mark(error_parser, "Missing integer.");
+	else if (symbol == symbol_real)
+		mark(error_parser, "Missing real.");
 	else
 		mark(error_parser, "Missing \"%s\".", id_for_symbol(symbol));
 }

@@ -11,7 +11,7 @@
 #include <string.h>
 
 #include "backend.h"
-#include "parser.h"
+#include "scanner.h"
 
 #define OUTPUT_EXTENSION ".asm"
 
@@ -41,12 +41,19 @@ int main(int argc, const char *argv[])
 		printf("Output file could not be created.\n");
 		return EXIT_FAILURE;
 	}
-	if (!initialize_parser(input_file))
-		printf("Empty or damaged input file.\n");
-	else {
-		initialize_backend(output_file);
-		parse();
+//	if (!initialize_parser(input_file))
+//		printf("Empty or damaged input file.\n");
+//	else {
+//		initialize_backend(output_file);
+//		parse();
+//	}
+
+  initialize_scanner(input_file);
+	while (current_token.lexem.symbol != symbol_eof) {
+		read_token();
+    printf("Lexema: \"%s\"; Símbolo: \"%s\"\n", current_token.lexem.id, id_for_symbol(current_token.lexem.symbol));
 	}
+
 	fclose(input_file);
 	fclose(output_file);
 	return EXIT_SUCCESS;
