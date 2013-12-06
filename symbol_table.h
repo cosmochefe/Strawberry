@@ -72,10 +72,10 @@ typedef struct _item {
 	unsigned char index; // Para registradores
   symbol_t condition;  // Para condicionais
 	char label[SYMBOL_TABLE_MAX_LABEL_LENGTH + 1];
-	link_t *links;
+	link_t *true_links, *false_links;
 } item_t;
 
-// TODO: Criar uma estrutura de dados real e organizar todas essa bagunça!
+// TODO: Criar uma estrutura de dados real e organizar toda essa bagunça!
 
 extern entry_t *symbol_table;
 extern address_t current_address;
@@ -91,7 +91,7 @@ void clear_table(entry_t **ref);
 void clear_links(link_t **ref);
 void log_table(entry_t *table);
 entry_t *find_entry(identifier_t id, entry_t *table);
-bool append_entry(entry_t *entry, entry_t **ref);
-bool append_link(link_t *link, link_t **ref);
+bool add_entry(entry_t *entry, entry_t **ref);
+bool add_link(link_t *link, link_t **ref);
 
 #endif

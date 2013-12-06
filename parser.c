@@ -327,7 +327,7 @@ void stmt_sequence();
 void write_branch(item_t *item, bool forward);
 void write_inverse_branch(item_t *item, bool forward);
 void write_label(item_t *item, const char *label);
-void write_fixup(item_t *item, bool clear);
+void write_fixup(item_t *item);
 
 // if_stmt = "if" expr "then" stmt_sequence {"elsif" expr "then" stmt_sequence} ["else" stmt_sequence] "end"
 void if_stmt()
