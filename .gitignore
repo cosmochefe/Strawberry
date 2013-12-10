@@ -6,5 +6,5 @@ stbry*
 *.o
 input.txt
 output.txt
-Strawberry.layout
-Strawberry.cbp
+Strawberry.*
+*.asm
