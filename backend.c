@@ -240,7 +240,7 @@ void write_branch_link(item_t *item, bool forward)
 	if (forward) {
 		fpos_t position;
 		fgetpos(output_file, &position);
-		add_link(create_link(position), &item->links);
+//		add_link(create_link(position), &item->links);
 		write_line(BACKEND_FORWARD_LABEL);
 	}
 	else {

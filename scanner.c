@@ -206,6 +206,12 @@ bool is_keyword(identifier_t id, symbol_t *symbol)
 
 char *id_for_symbol(symbol_t symbol)
 {
+	if (symbol == symbol_integer)
+		return "inteiro";
+	else if (symbol == symbol_real)
+		return "real";
+//	else if (symbol == symbol_string)
+//		return "cadeia";
 	for (unsigned int index = 0; index < keywords_count; index++)
 		if (keywords[index].symbol == symbol)
 			return keywords[index].id;
@@ -277,7 +283,7 @@ void id()
 // Por definição, somente números positivos inteiros são reconhecidos
 void number()
 {
-	unsigned int index = 0;
+	unsigned int index = 0; //contador da string
 	current_token.position = current_position;
 	current_token.value = 0;
 	identifier_t id; //o número em si
@@ -292,6 +298,10 @@ void number()
 	}
 	current_token.lexem.symbol = symbol_integer;
 	if (current_char == '.') { //para número real
+		id[index] = current_char;
+		current_token.lexem.id[index] = current_char;
+		index++;
+		read_char();
 		float factor = 0.1;
 		while (index < SCANNER_MAX_ID_LENGTH && is_digit(current_char)) {
 			id[index] = current_char;
@@ -320,11 +330,17 @@ void number()
 
 void string ()
 {
-	read_char();
-	while (current_char != '\"') {
-		read_char();
+	unsigned int index = 0; //contador da string
+	read_char(); //lë o próximo caracter e armazena no arquivo
+	while (index < SCANNER_MAX_ID_LENGTH && current_char != '\"')) { //comprimento máximo da string e o que está dentro dela
+		index++; //lë próximo caracter
+	  read_char();
 	}
-	read_char();
+	if (current_char == '\"'){ //símbolo final da string não deve ser armazenado
+		current_char = '\0'; //fim da string
+		read_char();
+		break;
+	}
 }
 
 // Ao entrar nesta função, o analisador léxico já encontrou os caracteres "(*" que iniciam o comentário e “current_char”
