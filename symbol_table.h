@@ -72,7 +72,8 @@ typedef struct _item {
 	unsigned char index; // Para registradores
   symbol_t condition;  // Para condicionais
 	char label[SYMBOL_TABLE_MAX_LABEL_LENGTH + 1];
-	link_t *true_links, *false_links;
+	link_t *links;
+	//link_t *true_links, *false_links;
 } item_t;
 
 // TODO: Criar uma estrutura de dados real e organizar toda essa bagunça!

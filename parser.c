@@ -449,7 +449,7 @@ void factor(item_t *item)
 		scan();
 		selector(item, entry_token);
 	}
-	else if (try_assert(symbol_number)) {
+	else if (try_assert(symbol_integer)) {
 		if (item) {
 			item->addressing = addressing_immediate;
 			item->value = current_token.value;
