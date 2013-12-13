@@ -1,60 +1,9 @@
 //
 //  parser.c
-//  Oberon
+//  Strawberry
 //
-//  Created by Alvaro Costa Neto on 10/12/13.
-//  Copyright (c) 2013 Alvaro Costa Neto. All rights reserved.
-//
-
-//
-// Regras para produção de código para o compilador (não-terminal K):
-//
-//	- "x": if (s == 'x') next(); else error();
-//	- (exp): evaluate(exp);
-//	- [exp]: if (set_includes(s, first_set(exp)) evaluate(exp);
-//	- {exp}: while (set_includes(s, first_set(exp)) evaluate(exp);
-//	- f0 f1 … fn: evaluate(f0); evaluate(f1); … evaluate(fn);
-//	- t0 | t1 | … | tn: if (set_includes(s, first_set(t0)) evaluate(t0);
-//											else if (set_includes(s, first_set(t1)) evaluate(t1);
-//											…
-//											else if (set_includes(s, first_set(tn)) evaluate(tn);
-//
-// Condições que devem ser respeitadas para manter o determinismo da gramática (não-terminal K):
-//
-//	- t0 | t1: set_union(first_set(t0), first_set(t1)) == EMPTY_SET;
-//	- f0 f1: if (set_includes(EMPTY, first_set(f0)) set_union(first_set(t0), first_set(t1)) == EMPTY_SET;
-//	- [exp] ou {exp}: set_union(first_set(exp), follow_set(K)) == EMPTY_SET;
-//
-// EBNF da linguagem Oberon-0 (para “letter” e “digit”, usar as funções “is_letter” e “is_digit”):
-//
-//	- id = letter {letter | digit}
-//	- integer = digit {digit}
-//	- number = integer
-//	- selector = {"." id | "[" expr "]"}
-//	- factor = id selector | number | "(" expr ")" | "~" factor
-//	- term = factor {("*" | "div" | "mod" | "&") factor}
-//	- simple_expr = ["+" | "-"] term {("+" | "-" | "OR") term}
-//	- expr = simple_expr [("=" | "#" | "<" | "<=" | ">" | ">=") simple_expr]
-//	- assignment = id selector ":=" expr
-//	- actual_params = "(" [expr {"," expr}] ")"
-//	- proc_call = id selector [actual_params]
-//	- if_stmt = "if" expr "then" stmt_sequence {"elsif" expr "then" stmt_sequence} ["else" stmt_sequence] "end"
-//	- while_stmt = "while" expr "do" stmt_sequence "end"
-//	- repeat_stmt = "repeat" stmt_sequence "until" expr
-//	- stmt = [assignment | proc_call | if_stmt | while_stmt | repeat_stmt]
-//	- stmt_sequence = stmt {";" stmt}
-//	- id_list = id {"," id}
-//	- array_type = "array" expr "of" type
-//	- field_list = [id_list ":" type]
-//	- record_type = "record" field_list {";" field_list} "end"
-//	- type = id | array_type | record_type
-//	- formal_params_section = ["var"] id_list ":" type
-//	- formal_params = "(" [formal_params_section {";" formal_params_section}] ")"
-//	- proc_head = "procedure" id [formal_params]
-//	- proc_body = declarations ["begin" stmt_sequence] "end" id
-//	- proc_decl = proc_head ";" proc_body
-//	- declarations = ["const" {id "=" expr ";"}]["type" {id "=" type ";"}]["var" {id_list ":" type ";"}]{proc_decl ";"}
-//	- module = "module" id ";" declarations ["begin" stmt_sequence] "end" id "."
+//  Criado por Alvaro Costa Neto em 12/10/2013.
+//  Copyright (c) 2013 Alvaro Costa Neto. Todos os direitos reservados.
 //
 
 #include <stdbool.h>
@@ -67,6 +16,18 @@
 #include "parser.h"
 
 bool should_log;
+
+// Funções de geração de código
+void write_index_offset(item_t *item, item_t *index_item);
+void write_field_offset(item_t *item, address_t offset);
+void write_unary_op(symbol_t symbol, item_t *item);
+void write_binary_op(symbol_t symbol, item_t *item, item_t *rhs_item);
+void write_comparison(symbol_t symbol, item_t *item, item_t *rhs_item);
+void write_branch(item_t *item, bool forward);
+void write_inverse_branch(item_t *item, bool forward);
+void write_label(item_t *item, const char *label);
+void write_fixup(item_t *item);
+void write_store(item_t *dst_item, item_t *src_item);
 
 bool is_first(const char *non_terminal, symbol_t symbol)
 {
@@ -396,8 +357,6 @@ static inline bool try_assert(symbol_t symbol)
 }
 
 void expr(item_t *item);
-void write_index_offset(item_t *item, item_t *index_item);
-void write_field_offset(item_t *item, address_t offset);
 
 // selector = {"." id | "[" expr "]"}
 void selector(item_t *item, token_t entry_token)
@@ -459,15 +418,8 @@ void selector(item_t *item, token_t entry_token)
 			else
 				mark(error_parser, "Missing \"]\" for (%d, %d).", open_pos.line, open_pos.column);
 		}
-    //		else {
-    //			// Sincroniza
-    //			mark(error_parser, "Invalid selector.");
-    //			while (!is_follow("selector", current_token.lexem.symbol) && scan());
-    //		}
 	}
 }
-
-void write_unary_op(symbol_t symbol, item_t *item);
 
 // factor = id selector | number | "(" expr ")" | "~" factor
 void factor(item_t *item)
@@ -524,8 +476,6 @@ void factor(item_t *item)
 	}
 }
 
-void write_binary_op(symbol_t symbol, item_t *item, item_t *rhs_item);
-
 // term = factor {("*" | "div" | "mod" | "&") factor}
 void term(item_t *item)
 {
@@ -560,8 +510,6 @@ void simple_expr(item_t *item)
 		write_binary_op(symbol, item, &rhs_item);
 	}
 }
-
-void write_comparison(symbol_t symbol, item_t *item, item_t *rhs_item);
 
 // expr = simple_expr [("=" | "#" | "<" | "<=" | ">" | ">=") simple_expr]
 void expr(item_t *item)
@@ -603,11 +551,6 @@ void proc_call(entry_t *entry)
 }
 
 void stmt_sequence();
-
-void write_branch(item_t *item, bool forward);
-void write_inverse_branch(item_t *item, bool forward);
-void write_label(item_t *item, const char *label);
-void write_fixup(item_t *item);
 
 // if_stmt = "if" expr "then" stmt_sequence {"elsif" expr "then" stmt_sequence} ["else" stmt_sequence] "end"
 void if_stmt()
@@ -684,8 +627,6 @@ void repeat_stmt()
 	expr(&expr_item);
 	write_inverse_branch(&expr_item, false);
 }
-
-void write_store(item_t *dst_item, item_t *src_item);
 
 // assignment = ":=" expr
 void assignment(item_t *item)
@@ -931,21 +872,6 @@ void proc_decl()
 	consume(symbol_semicolon);
 	proc_body();
 }
-
-//
-// A sintaxe original abaixo foi levemente modificada para facilitar a implementação:
-//
-// Original:
-// declarations = ["const" {id "=" expr ";"}]["type" {id "=" type ";"}]["var" {id_list ":" type ";"}] {proc_decl ";"}
-//
-// Modificado:
-// const_decl = "const" {id "=" expr ";"}
-// type_decl = "type" {id "=" type ";"}
-// var_decl = "var" {id_list ":" type ";"}
-// declarations = [const_decl] [type_decl] [var_decl] {proc_decl ";"}
-//
-// Na prática, continua a mesma linguagem, porém melhor estruturada em sua implementação
-//
 
 // const_decl = "const" {id "=" expr ";"}
 void const_decl()
