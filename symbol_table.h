@@ -17,63 +17,63 @@
 #define SYMBOL_TABLE_MAX_LABEL_LENGTH 16
 
 typedef enum _class {
-	class_unknown,
-	class_var,
-	class_const,
-	class_type,
-	class_proc
+  class_unknown,
+  class_var,
+  class_const,
+  class_type,
+  class_proc
 } class_t;
 
 typedef enum _form {
-	form_atomic,
-	form_array,
-	form_record
+  form_atomic,
+  form_array,
+  form_record
 } form_t;
 
 struct _entry;
 
 typedef struct _type {
-	form_t form;
-	value_t length;
-	unsigned int size;
-	struct _entry *fields;
-	struct _type *base;
+  form_t form;
+  value_t length;
+  unsigned int size;
+  struct _entry *fields;
+  struct _type *base;
 } type_t;
 
 typedef struct _entry {
-	identifier_t id;
-	position_t position;
-	address_t address;
-	class_t class;
-	value_t value;
-	struct _type *type;
-	struct _entry *next;
+  identifier_t id;
+  position_t position;
+  address_t address;
+  class_t class;
+  value_t value;
+  struct _type *type;
+  struct _entry *next;
 } entry_t;
 
 typedef enum _addressing {
-	addressing_unknown,
-	addressing_direct,
-	addressing_immediate,
-	addressing_register,
-	addressing_indirect,
+  addressing_unknown,
+  addressing_direct,
+  addressing_immediate,
+  addressing_register,
+  addressing_indirect,
   addressing_condition
 } addressing_t;
 
 typedef struct _link {
-	fpos_t position;
-	struct _link *next;
+  fpos_t position;
+  struct _link *next;
 } link_t;
 
 typedef struct _item {
-	addressing_t addressing;
-	struct _type *type;
-	address_t address;	 // Para variáveis na memória
-	value_t value;			 // Para constantes
-	unsigned char index; // Para registradores
+  addressing_t addressing;
+  struct _type *type;
+  address_t address;   // Para variáveis na memória
+  value_t value;       // Para constantes
+  unsigned char index; // Para registradores
   symbol_t condition;  // Para condicionais
-	char label[SYMBOL_TABLE_MAX_LABEL_LENGTH + 1];
-	link_t *links;
-	//link_t *true_links, *false_links;
+  char label[SYMBOL_TABLE_MAX_LABEL_LENGTH + 1];
+  link_t *links;
+  //link_t *true_links, *false_links;
 } item_t;
 
 // TODO: Criar uma estrutura de dados real e organizar toda essa bagunça!
