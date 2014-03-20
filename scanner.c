@@ -330,14 +330,15 @@ void number()
 
 void string ()
 {
-  unsigned int index = 0; //contador da string
-  read_char(); //lë o próximo caracter e armazena no arquivo
-  while (index < SCANNER_MAX_ID_LENGTH && current_char != '\"') { //comprimento máximo da string e o que está dentro dela
-    index++; //lë próximo caracter
-    read_char();
+  unsigned int index = 0; //Contador da string
+  read_char(); //Lë o próximo caracter e armazena no arquivo
+  while (index < SCANNER_MAX_ID_LENGTH && current_char != '\"') { //Comprimento máximo da string e o que está dentro dela
+    current_token.lexem.id[index] = current_char; // Guarda o caracter atual no vetor.
+    index++; //Incrementa para ler o próximo caracter.
+    read_char();  //Lê o próximo caracter.
   }
   if (current_char == '\"'){ //símbolo final da string não deve ser armazenado
-    current_char = '\0'; //fim da string
+    current_token.lexem.id[index] = '\0'; //Fim da string.
     read_char();
     break;
   }
@@ -362,7 +363,7 @@ void comment()
   current_token.lexem.symbol = symbol_eof;
 }
 
-void read_token() //analisador léxico
+void read_token() //Analisador léxico.
 {
   // O “last_token” não é mais usado... deixei aqui só por precaução
   // last_token = current_token;
@@ -373,7 +374,7 @@ void read_token() //analisador léxico
     }
     return;
   }
-  // Salta os caracteres em branco
+  // Salta os caracteres em branco.
   while (is_blank(current_char))
     read_char();
   // Os casos de um identificador ou um número são considerados separadamente para que o código no “switch” não precise
@@ -431,8 +432,8 @@ void read_token() //analisador léxico
     read_char();
     current_token.lexem.symbol = symbol_greater_equal;
   }
-  else if (current_token.lexem.symbol == symbol_colon && current_char == '=') {
-    current_token.lexem.id[1] = '=';
+  else if (current_token.lexem.symbol == symbol_less && current_char == '-') {
+    current_token.lexem.id[1] = '-';
     current_token.lexem.id[2] = '\0';
     read_char();
     current_token.lexem.symbol = symbol_becomes;
