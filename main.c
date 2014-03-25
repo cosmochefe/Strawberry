@@ -19,12 +19,12 @@ void initialize_backend(FILE *file);
 
 int main(int argc, const char *argv[])
 {
-  if (argc < 2) {
+  if (argc < 2) { //Procura argumentos, quantos argumentos foram usados (mais que dois).
     printf("Usage: stbry input [output]\n");
     return EXIT_FAILURE;
   }
-  FILE *input_file = fopen(argv[1], "r");
-  if (!input_file) {
+  FILE *input_file = fopen(argv[1], "r"); //Fopen abre dois arugmentos (um arquivo e uma string).
+  if (!input_file) { //Tenta abrir os arquivos de entrada.
     printf("Input file could not be opened.\n");
     return EXIT_FAILURE;
   }
@@ -48,7 +48,7 @@ int main(int argc, const char *argv[])
 //    parse();
 //  }
 
-  initialize_scanner(input_file);
+  initialize_scanner(input_file); //analizador lexico.
   while (current_token.lexem.symbol != symbol_eof) {
     read_token();
     printf("Lexema: \"%s\"; Símbolo: \"%s\"\n", current_token.lexem.id, id_for_symbol(current_token.lexem.symbol));

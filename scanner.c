@@ -75,22 +75,24 @@ position_t current_position;
 
 // Vetor com todas as palavras-chave da linguagem
 lexem_t keywords[] = {
-  { .id = "faça",         .symbol = symbol_do },
+  { .id = "faca",         .symbol = symbol_do },
   { .id = "se",           .symbol = symbol_if },
   { .id = "de",           .symbol = symbol_of },
   { .id = "OU",           .symbol = symbol_or },
   { .id = "XOU",          .symbol = symbol_xor },
+  { .id = "E",            .symbol = symbol_and },
+  { .id = "NAO",          .symbol = symbol_not },
   { .id = "fim",          .symbol = symbol_end },
 //  { .id = "mod",        .symbol = symbol_mod },
   { .id = "var",          .symbol = symbol_var },
-  { .id = "senão",        .symbol = symbol_else },
-  { .id = "então",        .symbol = symbol_then },
+  { .id = "senao",        .symbol = symbol_else },
+  { .id = "entao",        .symbol = symbol_then },
   { .id = "tipo",         .symbol = symbol_type },
   { .id = "matriz",       .symbol = symbol_array },
-  { .id = "início",       .symbol = symbol_begin },
+  { .id = "inicio",       .symbol = symbol_begin },
   { .id = "const",        .symbol = symbol_const },
 //  { .id = "elsif",      .symbol = symbol_elsif },
-  { .id = "até_que",      .symbol = symbol_until },
+  { .id = "ate_que",      .symbol = symbol_until },
   { .id = "enquanto",     .symbol = symbol_while },
   { .id = "record",       .symbol = symbol_record },
   { .id = "repita",       .symbol = symbol_repeat },
@@ -100,21 +102,21 @@ lexem_t keywords[] = {
   { .id = "fim_se",       .symbol = symbol_end_if },
   { .id = "fim_caso",     .symbol = symbol_end_case },
   { .id = "fim_para",     .symbol = symbol_end_for },
-  { .id = "fim_até_seja", .symbol = symbol_end_until_true },
+  { .id = "fim_ate_seja", .symbol = symbol_end_until_true },
   { .id = "caso",         .symbol = symbol_case },
   { .id = "enquanto",     .symbol = symbol_while },
   { .id = "para",         .symbol = symbol_for },
-  { .id = "até_seja",     .symbol = symbol_until_true },
+  { .id = "ate_seja",     .symbol = symbol_until_true },
   { .id = "seja",         .symbol = symbol_is },
   { .id = "efetue",       .symbol = symbol_perform },
   { .id = "execute",      .symbol = symbol_execute },
   { .id = "enquanto_for", .symbol = symbol_while_is },
-  { .id = "laço",         .symbol = symbol_loop },
+  { .id = "laco",         .symbol = symbol_loop },
   { .id = "saia_caso",    .symbol = symbol_leave_if },
   { .id = "de",           .symbol = symbol_from },
-  { .id = "até",          .symbol = symbol_up_to },
+  { .id = "ate",          .symbol = symbol_up_to },
   { .id = "passo",        .symbol = symbol_step },
-  { .id = "função",       .symbol = symbol_func },
+  { .id = "funcao",       .symbol = symbol_func },
   { .id = "leia",         .symbol = symbol_read },
   { .id = "escreva",      .symbol = symbol_write },
   { .id = "programa",     .symbol = symbol_program }
@@ -126,7 +128,7 @@ lexem_t operators[] = {
   { .id = "*",    .symbol = symbol_times },
   { .id = "/",    .symbol = symbol_division },
 //  { .id = "&",    .symbol = symbol_and },
-  { .id = "E",    .symbol = symbol_and },
+//  { .id = "E",    .symbol = symbol_and },
   { .id = "+",    .symbol = symbol_plus },
   { .id = "-",    .symbol = symbol_minus },
   { .id = "=",    .symbol = symbol_equal },
@@ -137,7 +139,7 @@ lexem_t operators[] = {
   { .id = ">",    .symbol = symbol_greater },
   { .id = ">=",   .symbol = symbol_greater_equal },
 //  { .id = "~",      .symbol = symbol_not },
-  { .id = "NÃO",  .symbol = symbol_not },
+//  { .id = "NÃO",  .symbol = symbol_not },
   { .id = "<-",   .symbol = symbol_becomes },
 //  { .id = ":=",     .symbol = symbol_becomes },
   { .id = "^",    .symbol = symbol_power }
@@ -340,7 +342,7 @@ void string ()
   if (current_char == '\"'){ //símbolo final da string não deve ser armazenado
     current_token.lexem.id[index] = '\0'; //Fim da string.
     read_char();
-    break;
+
   }
 }
 
