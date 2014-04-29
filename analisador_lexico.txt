@@ -1,6 +1,0 @@
-identificadores: nomes q o programador usa
-palavras reservadas: palavras da linguagem"enquanto"
-numeros inteiros e decimais,
-cadeias de caracteres (strings)
-símbolos 
-quebra de linha (enter), reconhecer como simbolo lexico \r\n(windows), \r()
