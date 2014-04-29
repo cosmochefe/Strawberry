@@ -100,7 +100,8 @@ typedef enum _symbol {
   symbol_begin = 61, //inicio
   //symbol_module = 63,
   symbol_program = 63,
-  symbol_eof = 64
+  symbol_eof = 64,
+  symbol_newline = 80
 } symbol_t;
 
 #include "backend.h"

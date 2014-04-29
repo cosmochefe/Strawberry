@@ -52,5 +52,5 @@ DIV
 OU
 XOU
 E
-NÃO
+NAO
 FUNCAO
