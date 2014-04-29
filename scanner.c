@@ -269,7 +269,7 @@ void id()
 {
   unsigned int index = 0;
   current_token.position = current_position;
-  while (index < SCANNER_MAX_ID_LENGTH && (is_letter(current_char) || is_digit(current_char))) {
+  while (index < SCANNER_MAX_ID_LENGTH && (is_letter(current_char) || is_digit(current_char) || current_char == '_')) {
     current_token.lexem.id[index++] = current_char;
     if (!read_char())
       break;
