@@ -159,7 +159,8 @@ lexem_t punctuation[] = {
   { .id = "{",  .symbol = symbol_open_braces },
   { .id = ";",  .symbol = symbol_semicolon },
   { .id = "\"", .symbol = symbol_quotes },
-  { .id = "..", .symbol = symbol_range }
+  { .id = "..", .symbol = symbol_range },
+  { .id = "<CR>", .symbol = symbol_newline }
 };
 const unsigned int punctuation_count = sizeof(keywords) / sizeof(lexem_t);
 
@@ -269,7 +270,7 @@ void id()
 {
   unsigned int index = 0;
   current_token.position = current_position;
-  while (index < SCANNER_MAX_ID_LENGTH && (is_letter(current_char) || is_digit(current_char))) {
+  while (index < SCANNER_MAX_ID_LENGTH && (is_letter(current_char) || is_digit(current_char) || current_char == '_')) {
     current_token.lexem.id[index++] = current_char;
     if (!read_char())
       break;
@@ -392,6 +393,10 @@ void read_token() //Analisador léxico.
   else if (current_char == '\"') {
     string();
     return;
+  }
+  else if (is_newline(current_char, last_char)){
+    current_token.position = current_position;
+    current_token.lexem.symbol = symbol_newline;
   }
   current_token.position = current_position;
   current_token.lexem.id[0] = current_char;
