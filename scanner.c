@@ -94,7 +94,7 @@ lexem_t keywords[] = {
 //  { .id = "elsif",      .symbol = symbol_elsif },
   { .id = "ate_que",      .symbol = symbol_until },
   { .id = "enquanto",     .symbol = symbol_while },
-  { .id = "record",       .symbol = symbol_record },
+  { .id = "registro",     .symbol = symbol_record },
   { .id = "repita",       .symbol = symbol_repeat },
 //  { .id = "procedure",  .symbol = symbol_proc },
   { .id = "div",          .symbol = symbol_div },
@@ -213,8 +213,8 @@ char *id_for_symbol(symbol_t symbol)
     return "inteiro";
   else if (symbol == symbol_real)
     return "real";
-//  else if (symbol == symbol_string)
-//    return "cadeia";
+  else if (symbol == symbol_string)
+    return "cadeia";
   for (unsigned int index = 0; index < keywords_count; index++)
     if (keywords[index].symbol == symbol)
       return keywords[index].id;
@@ -331,7 +331,7 @@ void number()
     mark(error_warning, "\"%s\" is not a number. Assuming \"%s\".", id, current_token.lexem.id);
 }
 
-void string ()
+void string()
 {
   unsigned int index = 0; //Contador da string
   read_char(); //Lë o próximo caracter e armazena no arquivo
@@ -418,6 +418,8 @@ void read_token() //Analisador léxico.
     case '[': current_token.lexem.symbol = symbol_open_bracket;   break;
     case ']': current_token.lexem.symbol = symbol_close_bracket;  break;
     case '~': current_token.lexem.symbol = symbol_not;            break;
+    case '\r': current_token.lexem.symbol = symbol_newline;       break;
+    case '\n': current_token.lexem.symbol = symbol_newline;       break;
     default:  current_token.lexem.symbol = symbol_null;           break;
   }
   current_token.lexem.id[1] = '\0';
